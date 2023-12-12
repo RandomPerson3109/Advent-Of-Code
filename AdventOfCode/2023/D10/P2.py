@@ -1,35 +1,73 @@
 from time import time
+
 startTime = time()
-inputF = open("input.txt","r")
+inputF = open("input.txt", "r")
+
+
+def searchWASD(x, y, isS=False):
+    connection = [["-", "7", "J"], ["|", "L", "J"], ["-", "F", "L"], ["|", "F", "7"]]
+    conversion = {0: 2, 2: 0, 1: 3, 3: 1}
+    toSearch = [[x, y + 1], [x + 1, y], [x, y - 1], [x - 1, y]]
+    for j, i in enumerate(toSearch):
+        if i[0] < 0 or i[0] >= len(inputList) or i[1] < 0 or i[1] >= len(inputList[i[0]]) or tuple(i) in allPos:
+            continue
+        if inputList[i[0]][i[1]] in connection[j] and (isS or inputList[x][y] in connection[conversion[j]]):
+            return i
+
 
 inputList = [list(i) for i in inputF.read().split("\n")]
-rowToAdd = set()
+startPos = []
+allPos = set()
+foundStartPos = False
+for iI, i in enumerate(inputList):
+    for jI, j in enumerate(i):
+        if j == "S":
+            startPos = [iI, jI]
+            foundStartPos = True
+            break
+    if foundStartPos:
+        break
+
+posToSearch = searchWASD(startPos[0], startPos[1], True)
+if [startPos[0] + 1, startPos[1]] in posToSearch:  # Down
+    if [startPos[0], startPos[1] + 1] in posToSearch:  # Right
+        inputList[startPos[0]][startPos[1]] = "J"
+    else:  # Left
+        inputList[startPos[0]][startPos[1]] = "L"
+else:  # Up
+    if [startPos[0], startPos[1] + 1] in posToSearch:  # Right
+        inputList[startPos[0]][startPos[1]] = "7"
+    else:  # Left
+        inputList[startPos[0]][startPos[1]] = "F"
+print('\n'.join([''.join(i) for i in inputList]))
+
+while 1:
+    allPos.add(tuple(posToSearch))
+    posToSearch = searchWASD(posToSearch[0], posToSearch[1])
+    if posToSearch == None:
+        break
+print(allPos)
+area = 0
 for i in range(len(inputList)):
-    if inputList[i] == ["." for _ in inputList[i]]:
-        rowToAdd.add(i)
-columnToAdd = set()
-for i in range(len(inputList[0])):
-    if [inputList[j][i] for j in range(len(inputList))] == ["." for _ in inputList]:
-        columnToAdd.add(i)
-stars = set()
-for i in range(len(inputList)):
+    walls = 0
+    connected = False
+    firstConnection = True
     for j in range(len(inputList[i])):
-        if inputList[i][j] == "#":
-            stars.add(tuple([i, j]))
-distance = 0
-while len(stars) > 0:
-    search = stars.pop()
-    for i in stars:
-        distance += abs(i[0]-search[0]) + abs(i[1]-search[1])
-        for j in rowToAdd:
-            if (i[0] < j < search[0]) or (i[0] > j > search[0]):
-                distance += 999999
-        for j in columnToAdd:
-            if (i[1] < j < search[1]) or (i[1] > j > search[1]):
-                distance += 999999
-print(distance)
+        if tuple([i, j]) in allPos:
+            if inputList[i][j] in ["-", "L", "F"]:
+                connected = True
+                if firstConnection:
+                    walls += 1
+                    firstConnection = False
+            else:
+                walls += 1
+                connected = False
+                firstconnection = True
+        elif walls % 2 != 0:
+            area += 1
+print(area)
 
 inputF.close()
 endTime = time()
-msTaken = round((endTime-startTime)*1000, 3)
+msTaken = round((endTime - startTime) * 1000, 3)
 print("{}ms taken".format(msTaken))
