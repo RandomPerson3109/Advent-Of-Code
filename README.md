@@ -4,6 +4,5 @@ My attempts on solving AOC2023 questions. As you can probably see from my spaghe
 <br> My solution will be updated as soon I solve both parts to the solution. If I can't solve the second part, I'll update the repository the next day.
 
 # TODO
-Finish D10-2 <br>
 Finish D12 <br>
 Revise D14-2 so it doesn't require human brain to solve it <br>
